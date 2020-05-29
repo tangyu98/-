@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-商品详情</title>
+	<link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <script src="/static/js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div class="fr">
+				<div class="login_info fl">
+					欢迎您：<em>张 山</em>
+				</div>
+				<div class="login_btn fl">
+                    {% if request.session.LOGIN_LOCAL_FLAG %}
+                        <span>欢迎你: {{ request.session.LOGIN_LOCAL_FLAG.name }}</span>
+                        <a href="/logout">退出登陆</a>
+                    {% else %}
+                        <a href="/login">登录</a>
+                        <span>|</span>
+                        <a href="/register">注册</a>
+                    {% endif %}
+				</div>
+				<div class="user_link fl">
+					<span>|</span>
+					<a href="/user_center_info">用户中心</a>
+					<span>|</span>
+					<a href="/cars">我的购物车</a>
+					<span>|</span>
+					<a href="/orders/1">我的订单</a>
+				</div>
+			</div>
+		</div>		
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="/index" class="logo fl"><img src="/static/images/logo.png"></a>
+		<div class="search_con fl">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品" onchange="findGoods(this)">
+			<input type="button" class="input_btn fr" name="" value="搜索" id="find">
+		</div>
+		<div class="guest_cart fr">
+			<a href="/cars" class="cart_name fl">我的购物车</a>
+            <div class="goods_count fl" id="show_count">
+                 {% if request.session.LOGIN_LOCAL_FLAG %}
+                     <span>{{ counts }}</span>
+                 {% else %}
+                     0
+                 {% endif %}
+            </div>
+		</div>
+	</div>
+
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>	
+				<span></span>			
+				<ul class="subnav">
+					<li><a href="#" class="fruit">新鲜水果</a></li>
+					<li><a href="#" class="seafood">海鲜水产</a></li>
+					<li><a href="#" class="meet">猪牛羊肉</a></li>
+					<li><a href="#" class="egg">禽类蛋品</a></li>
+					<li><a href="#" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="#" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="/index">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="">手机生鲜</a></li>
+				<li class="interval">|</li>
+				<li><a href="">抽奖</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb">
+		<a href="#">全部分类</a>
+		<span>></span>
+		<a href="#">新鲜水果</a>
+		<span>></span>
+		<a href="#">商品详情</a>
+	</div>
+
+	<div class="goods_detail_con clearfix">
+		<div class="goods_detail_pic fl"><img src="{{ good.photo }}"></div>
+
+		<div class="goods_detail_list fr">
+			<h3>{{ good.name }}</h3>
+			<p>{{ good.comments }}</p>
+			<div class="prize_bar">
+				<span class="show_pirze">¥<em>{{ good.price }}</em></span>
+				<span class="show_unit">单  位：500g</span>
+			</div>
+			<div class="goods_num clearfix">
+				<div class="num_name fl">数 量：</div>
+				<div class="num_add fl">
+					<input type="text" class="num_show fl" value="1">
+					<a href="javascript:;" class="add fr">+</a>
+					<a href="javascript:;" class="minus fr">-</a>	
+				</div> 
+			</div>
+			<div class="total">总价：<em>{{ good.price }}</em></div>
+            <p style="display: none" class="danjian">{{ good.price }}</p>
+			<div class="operate_btn">
+				<a href="javascript:;" class="buy_btn">立即购买</a>
+{#                <a class="buy_btn">立即购买</a>#}
+{#                <p class="buy_btn">立即购买</p>#}
+				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+                    {% for good_new in good_new_list2 %}
+                        <li>
+                            <a href="/detail/{{ good_new.id }}"><img src="{{ good_new.photo }}"></a>
+                            <h4><a href="#">{{ good_new.name }}</a></h4>
+                            <div class="prize">￥{{ good_new.price }}</div>
+					    </li>
+                    {% endfor %}
+
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<ul class="detail_tab clearfix">
+				<li class="active">商品介绍</li>
+				<li class="pinlun">评论</li>
+			</ul>
+
+			<div class="tab_content">
+				<dl>
+					<dt class="dd1">商品详情：</dt>
+					    <dd class="dd1">{{ good.introduce }}</dd>
+                    <dt class="dd2" style="display: none">商品评论：</dt>
+					    <dd class="dd2" style="display: none">{{ good.introduce }}</dd>
+
+				</dl>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a>
+			<span>|</span>
+			<a href="#">联系我们</a>
+			<span>|</span>
+			<a href="#">招聘人才</a>
+			<span>|</span>
+			<a href="#">友情链接</a>		
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888    京ICP备*******8号</p>
+	</div>
+	<div class="add_jump"></div>
+
+{#	<script type="text/javascript" src="/static/js/jquery-1.12.2.js"></script>#}
+	<script type="text/javascript">
+        $(function () {
+            $(".add").on("click", function () {
+                var num =  $(".num_show").val();
+                num  ++;
+                $(".num_show").val(num);
+                var price =  $(".danjian").text();
+                console.log(price);
+                var prices = price * num;
+                prices = prices.toFixed(1);
+                console.log(prices);
+                $(".total>em").text(prices)
+            });
+            $(".minus").on("click", function () {
+                var num =  $(".num_show").val();
+                if(num == 1){
+                    $(".num_show").val(num)
+                }
+                else
+                num  --;
+                $(".num_show").val(num);
+                var price =  $(".danjian").text();
+                console.log(price);
+                var prices = price * num;
+                prices = prices.toFixed(1);
+                console.log(prices);
+                $(".total>em").text(prices)
+            });
+            $(".active").on("click", function () {
+                $(".dd2").hide();
+                $(".dd1").show();
+                {#$(".active").addClass("active")#}
+                {#$(".pinlun").removeClass("active")#}
+
+            });
+            $(".pinlun").on("click", function () {
+                $(".dd1").hide();
+                $(".dd2").show();
+                {#$(".pinlun").addClass("active")#}
+                {#$(".active").removeClass("active")#}
+            });
+            $(".buy_btn").on("click", function () {
+                var num =  $(".num_show").val();
+                window.location.href = `/to_place/{{ good.id }}/${num}`
+            });
+            $(".add_cart").on("click", function () {
+                var num =  $(".num_show").val();
+                window.location.href = `/add_cart/{{ good.id }}/${num}`
+            });
+        });
+
+
+        function findGoods(tag) {
+            let goods_name = tag.value;
+            $.ajax({
+                url: "/find_goods",
+                data: {"name": goods_name},
+                method: "POST",
+                dataType: 'json',
+                success: function (data) {
+                    if (!data.status) {
+                        alert(data.message)
+                    }
+                    $("#find").on("click",function () {
+                        window.location.href = `/detail/${data.goods.id}`
+                    })
+                }
+            })
+        }
+	</script>
+	
+</body>
+</html>

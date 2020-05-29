@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-用户中心</title>
+	<link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div class="fr">
+				<div class="login_info fl">
+					欢迎您：<em>张 山</em>
+				</div>
+				<div class="login_btn fl">
+                    {% if request.session.LOGIN_LOCAL_FLAG %}
+                        <span>欢迎你: {{ request.session.LOGIN_LOCAL_FLAG.name }}</span>
+                        <a href="/logout">退出登陆</a>
+                    {% else %}
+                        <a href="/login">登录</a>
+                        <span>|</span>
+                        <a href="/register">注册</a>
+                    {% endif %}
+				</div>
+				<div class="user_link fl">
+					<span>|</span>
+					<a href="/user_center_info">用户中心</a>
+					<span>|</span>
+					<a href="/cars">我的购物车</a>
+					<span>|</span>
+					<a href="/orders/1">我的订单</a>
+				</div>
+			</div>
+		</div>		
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="/index" class="logo fl"><img src="/static/images/logo.png"></a>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
+		<div class="search_con fr">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品" onchange="findGoods(this)">
+			<input type="button" class="input_btn fr" name="" value="搜索" id="find">
+		</div>		
+	</div>
+
+	<div class="main_con clearfix">
+		<div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="/user_center_info">· 个人信息</a></li>
+				<li><a href="/orders/1">· 全部订单</a></li>
+				<li><a href="/to_site/{{ request.session.LOGIN_LOCAL_FLAG.id }}" class="active">· 收货地址</a></li>
+			</ul>
+		</div>
+		<div class="right_content clearfix">
+				<h3 class="common_title2">收货地址</h3>
+				<div class="site_con">
+					<dl>
+						<dt>当前地址：</dt>
+
+                        {% if u_addr %}
+                            <dd>{{ u_addr.addr }}  ( {{ u_addr.name }}收) {{ u_addr.tel }}</dd>
+                        {% else %}
+                            你还没有收货地址，现在创建一个吧
+                        {% endif %}
+{#                        <dd>{{ u_addr_new.addr }}  ( {{ u_addr_new.name }}收) {{ u_addr_new.tel }}</dd>#}
+{#						<dd>北京市 海淀区 东北旺西路8号中关村软件园 （李思 收） 182****7528</dd>#}
+					</dl>
+				</div>
+				<h3 class="common_title2">编辑地址{{ msg }}</h3>
+
+				<div class="site_con">
+					<form action="/site" method="post">
+						<div class="form_group">
+							<label>收件人：</label>
+							<input type="text" name="name">
+						</div>
+						<div class="form_group form_group2">
+							<label>详细地址：</label>
+							<textarea class="site_area" name="addr"></textarea>
+						</div>
+						<div class="form_group">
+							<label>邮编：</label>
+							<input type="text" name="post_num">
+						</div>
+						<div class="form_group">
+							<label>手机：</label>
+							<input type="text" name="tel">
+						</div>
+
+						<input type="submit" name="" value="提交" class="info_submit">
+					</form>
+				</div>
+		</div>
+	</div>
+
+
+
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a>
+			<span>|</span>
+			<a href="#">联系我们</a>
+			<span>|</span>
+			<a href="#">招聘人才</a>
+			<span>|</span>
+			<a href="#">友情链接</a>		
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888    京ICP备*******8号</p>
+	</div>
+<script type="text/javascript">
+    function findGoods(tag) {
+        let goods_name = tag.value;
+        $.ajax({
+            url: "/find_goods",
+            data: {"name": goods_name},
+            method: "POST",
+            dataType: 'json',
+            success: function (data) {
+                if (!data.status) {
+                    alert(data.message)
+                }
+                $("#find").on("click",function () {
+                    window.location.href = `/detail/${data.goods.id}`
+                })
+            }
+        })
+    }
+</script>
+</body>
+</html>

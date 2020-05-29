@@ -1,0 +1,362 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>天天生鲜-购物车</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <script src="/static/js/jquery-1.12.4.min.js"></script>
+    {% load extra_filter %}
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div class="fr">
+				<div class="login_info fl">
+					欢迎您：<em>张 山</em>
+				</div>
+				<div class="login_btn fl">
+                    {% if request.session.LOGIN_LOCAL_FLAG %}
+                        <span>欢迎你: {{ request.session.LOGIN_LOCAL_FLAG.name }}</span>
+                        <a href="/logout">退出登陆</a>
+                    {% else %}
+                        <a href="/login">登录</a>
+                        <span>|</span>
+                        <a href="/register">注册</a>
+                    {% endif %}
+				</div>
+				<div class="user_link fl">
+					<span>|</span>
+					<a href="/user_center_info">用户中心</a>
+					<span>|</span>
+					<a href="/cars">我的购物车</a>
+					<span>|</span>
+					<a href="/orders/1">我的订单</a>
+				</div>
+			</div>
+		</div>		
+	</div>
+
+
+	<div class="search_bar clearfix">
+		<a href="/index" class="logo fl"><img src="/static/images/logo.png"></a>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;购物车</div>
+		<div class="search_con fr">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品" onchange="findGoods(this)">
+			<input type="button" class="input_btn fr" name="" value="搜索" id="find">
+		</div>
+	</div>
+
+<div class="total_count">全部商品<em>{{ goods|length }}</em>件</div>
+<ul class="cart_list_th clearfix">
+    <li class="col01">商品名称</li>
+    <li class="col02">商品单位</li>
+    <li class="col03">商品价格</li>
+    <li class="col04">数量</li>
+    <li class="col05">小计</li>
+    <li class="col06">操作</li>
+</ul>
+{% for good in goods %}
+    <ul class="cart_list_td clearfix">
+        <li class="col01"><input type="checkbox" name="ids" class="checkone" checked><span id="span1" style="display: none">{{ good.id }}</span></li>
+
+        <li class="col02"><img src="{{ good.photo }}"></li>
+        <li class="col03">{{ good.name }}<br><em>{{ good.price }}元/500g</em></li>
+        <li class="col04">500g</li>
+        <li class="col05" id="col05">{{ good.price }}元</li>
+        <li class="col06">
+            <div class="num_add">
+                <a href="javascript:;" class="add fl">+</a>
+                <input type="text" name="number" class="num_show fl" id="numbers" value="{{ good.num }}">
+                <a href="javascript:;" class="minus fl">-</a>
+            </div>
+        </li>
+        <li class="col07" id="col07" >{{ good.price|money:good.num }}元</li>
+        <li class="col08"><a href="/delete/{{ good.id }}">删除</a></li>
+    </ul>
+
+{% endfor %}
+
+<ul class="settlements">
+    <li class="col01"><input type="checkbox" id="checkall" checked=""></li>
+    <li class="col02">全选</li>
+
+    <li class="col03">合计(不含运费)：<span>¥</span>
+        <em id="prices">{{ prices1 }}</em>
+
+        <br>共计<b id="num1">{{ nums }}</b>件商品
+
+    </li>
+    <li class="col04"><a href="/order" id="a1">去结算</a></li>
+</ul>
+
+<div class="footer">
+    <div class="foot_link">
+        <a href="#">关于我们</a>
+        <span>|</span>
+        <a href="#">联系我们</a>
+        <span>|</span>
+        <a href="#">招聘人才</a>
+        <span>|</span>
+        <a href="#">友情链接</a>
+    </div>
+    <p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+    <p>电话：010-****888 京ICP备*******8号</p>
+</div>
+<script>
+
+    $(".minus").click(function () {
+        var nums = $(this).prev().val();
+        if(nums==1){
+            $(this).prev().val(nums)
+        }
+        else {
+            nums--;
+            $(this).prev().val(nums);
+        }
+        var price = $(this).parent().parent().prev().text();
+        console.log(price);
+        price.substr(1);
+        console.log(typeof (price));
+        price = parseFloat(price);
+        let money = nums * price;
+        money=money+"元";
+        $(this).parent().parent().next().text(money);
+        var list1 = $(".checkone");
+        var sum1 = 0;
+        for(var i=0;i<list1.length;i++){
+            console.log($(list1[i]));
+            console.log($(list1[i]).prop("checked"));
+            if($(list1[i]).prop("checked")){
+                console.log(list1[i])
+                var prices = $(list1[i]).parent().next().next().next().next().next().next().text();
+                prices = parseInt(prices);
+                sum1 = prices + sum1
+            }
+
+        }
+        $("#prices").text(sum1.toFixed(1))
+
+        var data={
+            nums:nums,
+            id:$("#span1").text()
+        };
+        $.ajax({
+            url: '/changenum',
+            method: "post",
+            data:data,
+            dataType: 'json',
+            success:function (r) {
+                console.log("1111");
+                console.log("1111");
+                console.log("1111")
+            }
+        })
+
+    });
+
+
+
+    $(".add").click(function () {
+        var nums = $(this).next().val();
+        nums++;
+        $(this).next().val(nums);
+        var price = $(this).parent().parent().prev().text();
+        console.log(price);
+        price.substr(1);
+        console.log(typeof (price));
+        price = parseFloat(price);
+        let money = nums * price;
+        money=money+"元";
+        $(this).parent().parent().next().text(money)
+        var list1 = $(".checkone");
+        var sum1 = 0;
+        for(var i=0;i<list1.length;i++){
+            console.log($(list1[i]));
+            console.log($(list1[i]).prop("checked"));
+            if($(list1[i]).prop("checked")){
+                console.log(list1[i])
+                var prices = $(list1[i]).parent().next().next().next().next().next().next().text();
+                prices = parseInt(prices);
+                sum1 = prices + sum1
+            }
+        }
+        $("#prices").text(sum1.toFixed(1));
+        var data={
+            nums:nums,
+            id:$("#span1").text()
+        };
+        $.ajax({
+            url: '/changenum',
+            method: "post",
+            data:data,
+            dataType: 'json',
+            success:function (r) {
+                console.log("1111")
+                console.log("1111")
+                console.log("1111")
+            }
+        })
+
+    });
+
+    $("#checkall").click(function () {
+        $(":checkbox[name='ids']").prop("checked", this.checked);
+        var list1 = $(".checkone");
+        var sum1 = 0;
+        for(var i=0;i<list1.length;i++){
+            console.log($(list1[i]));
+            console.log($(list1[i]).prop("checked"));
+            if($(list1[i]).prop("checked")){
+                console.log(list1[i]);
+                var prices = $(list1[i]).parent().next().next().next().next().next().next().text();
+                prices = parseInt(prices);
+                sum1 = prices + sum1
+            }
+        }
+        $("#prices").text(sum1);
+
+        if($("#checkall").prop("checked")){
+            $("#num1").text(4);
+            var date2={
+                status:1,
+                id:$("#span1").text()
+            };
+            $.ajax({
+                url: '/changestatus',
+                method: "post",
+                data:date2,
+                dataType: 'json',
+                success:function (r) {
+                    console.log("1111");
+                    console.log("1111");
+                    console.log("1111")
+                }
+            })
+
+        }
+        else {
+            $("#num1").text(0)
+
+            var date={
+                status:2,
+                id:$("#span1").text()
+            };
+            $.ajax({
+                url: '/changestatus',
+                method: "post",
+                data:date,
+                dataType: 'json',
+                success:function (r) {
+                    console.log("1111");
+                    console.log("1111");
+                    console.log("1111")
+                }
+            })
+
+        }
+    });
+
+
+    $(".checkone").click( function () {
+        var items = $('input[name="ids"]');
+        var che = true;
+        for (var i = 0; i < items.length; i++) {
+            if (!items[i].checked) {
+                che = false
+                $("#checkall").prop('checked', false);
+
+                var date2={
+                    status:2,
+                    id:$(items[i]).next().text()
+                };
+                $.ajax({
+                    url: '/changestatusone',
+                    method: "post",
+                    data:date2,
+                    dataType: 'json',
+                    success:function (r) {
+                        console.log("1111");
+                        console.log("1111");
+                        console.log("1111")
+                    }
+                })
+            }
+            else {
+                var date1={
+                status:1,
+                id:$(items[i]).next().text()
+            };
+            $.ajax({
+                url: '/changestatusone',
+                method: "post",
+                data:date1,
+                dataType: 'json',
+                success:function (r) {
+                    console.log("1111");
+                    console.log("1111");
+                    console.log("1111")
+                }
+            })
+            }
+        }
+        if(che){
+           $("#checkall").prop('checked', true);
+
+
+        }
+
+        var list1 = $(".checkone");
+        var nums = 0
+        for(var i=0;i<list1.length;i++){
+            console.log($(list1[i]));
+            console.log($(list1[i]).prop("checked"));
+            if($(list1[i]).prop("checked")){
+                nums++;
+                $("#num1").text(nums)
+            }
+
+        }
+        var list1 = $(".checkone");
+        var sum1 = 0;
+        for(var i=0;i<list1.length;i++){
+            console.log($(list1[i]));
+            console.log($(list1[i]).prop("checked"));
+            if($(list1[i]).prop("checked")){
+                console.log(list1[i])
+                var prices = $(list1[i]).parent().next().next().next().next().next().next().text();
+                prices = parseInt(prices);
+                sum1 = prices + sum1
+            }
+        }
+        $("#prices").text(sum1)
+
+
+    });
+
+
+
+    function findGoods(tag) {
+        let goods_name = tag.value;
+        $.ajax({
+            url: "/find_goods",
+            data: {"name": goods_name},
+            method: "POST",
+            dataType: 'json',
+            success: function (data) {
+                if (!data.status) {
+                    alert(data.message)
+                }
+                $("#find").on("click",function () {
+                    window.location.href = `/detail/${data.goods.id}`
+                })
+            }
+        })
+    }
+
+</script>
+
+</body>
+</html>
